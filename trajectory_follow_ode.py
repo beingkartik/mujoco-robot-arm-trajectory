@@ -334,51 +334,51 @@ class RobotArmGUItraj(robotArm.RobotArmGUI):
         return np.array([yb[0]-self.bc[0], yb[1]-self.bc[1],ya[2]-self.bc[2],ya[3]-self.bc[3],ya[4]-self.bc[4]])
 #        
     def trajectory_bvp(self):
-#        _ = self.trajectory_ode(is_helper_for_bc=True)
+        _ = self.trajectory_ode(is_helper_for_bc=True)
         
-        print('Complete single BVP being solved')
-        target_list = self.desired_traj()[self.trajectory_point+1:]
-        total_time = 10 #for each waypoint
-
-        t_steps = 101
-        t_total_list = np.linspace(0,total_time*len(target_list),t_steps*len(target_list) - (len(target_list)-1))
-        
-        initial_values_bvp = np.zeros((t_steps*len(target_list) - (len(target_list)-1),2+len(self.theta_slds)))
-        d_ang_save = [ theta.value() for theta in self.theta_slds ]
-
-        for i,target in enumerate(target_list):
-            pt_ef_position = self.robot_arm.arm_end_pt()
-            
-            self.reach_x.set_value(target[0])
-            self.reach_y.set_value(target[1])
-            self.robot_arm.repaint()
-            y0 = [pt_ef_position[0],pt_ef_position[1]] + [ theta.value() for theta in self.theta_slds ]
-            
-            [dx,dy] = (target - pt_ef_position)/total_time
-            t = np.linspace(0, total_time, t_steps)
-            
-            #solving ODE with constant jacobian and constant (dx,dy). Constant means calculated at initial point
-#            sol = integrate.odeint(self.model_eqn,y0,t,args=(total_time,dx,dy))
-           
-            #solving ODE with updated jacobian(as function of theta)  and constant (dx,dy). Constant means calculated at initial point
-            sol = integrate.odeint(self.model_eqn_precise_dxdy,y0,t,args=(total_time,dx,dy))
-            for item in sol:
-                for i in range(len(item)-2):
-                    self.theta_slds[i].set_value( item[i+2])
-            print("Atempted to reach: ",str(target),"Reached: ",str(self.robot_arm.arm_end_pt()))
-            initial_values_bvp[i*t_steps-1:(i+1)*t_steps-1] = sol
-            print(i*t_steps-1,(i+1)*t_steps-1)
-        
-        self.bc = [target_list[-1][0],target_list[-1][1]] + d_ang_save
-        
-        print("Resetting arm")
-        for i,ang_save in enumerate(d_ang_save):
-            self.theta_slds[i].set_value(ang_save)
-        sol = integrate.solve_bvp(fun= lambda t,y:self.model_eqn_precise_target_bvp(y,t,total_time,target),bc=self.bc_model,x=t_total_list,y=initial_values_bvp.transpose())
-        sol = sol.y.transpose()
-        for item in sol:
-            for i in range(len(item)-2):
-                self.theta_slds[i].set_value( item[i+2])      
+#        print('Complete single BVP being solved')
+#        target_list = self.desired_traj()[self.trajectory_point+1:]
+#        total_time = 10 #for each waypoint
+#
+#        t_steps = 101
+#        t_total_list = np.linspace(0,total_time*len(target_list),t_steps*len(target_list) - (len(target_list)-1))
+#        
+#        initial_values_bvp = np.zeros((t_steps*len(target_list) - (len(target_list)-1),2+len(self.theta_slds)))
+#        d_ang_save = [ theta.value() for theta in self.theta_slds ]
+#
+#        for i,target in enumerate(target_list):
+#            pt_ef_position = self.robot_arm.arm_end_pt()
+#            
+#            self.reach_x.set_value(target[0])
+#            self.reach_y.set_value(target[1])
+#            self.robot_arm.repaint()
+#            y0 = [pt_ef_position[0],pt_ef_position[1]] + [ theta.value() for theta in self.theta_slds ]
+#            
+#            [dx,dy] = (target - pt_ef_position)/total_time
+#            t = np.linspace(0, total_time, t_steps)
+#            
+#            #solving ODE with constant jacobian and constant (dx,dy). Constant means calculated at initial point
+##            sol = integrate.odeint(self.model_eqn,y0,t,args=(total_time,dx,dy))
+#           
+#            #solving ODE with updated jacobian(as function of theta)  and constant (dx,dy). Constant means calculated at initial point
+#            sol = integrate.odeint(self.model_eqn_precise_dxdy,y0,t,args=(total_time,dx,dy))
+#            for item in sol:
+#                for i in range(len(item)-2):
+#                    self.theta_slds[i].set_value( item[i+2])
+#            print("Atempted to reach: ",str(target),"Reached: ",str(self.robot_arm.arm_end_pt()))
+#            initial_values_bvp[i*t_steps-1:(i+1)*t_steps-1] = sol
+#            print(i*t_steps-1,(i+1)*t_steps-1)
+#        
+#        self.bc = [target_list[-1][0],target_list[-1][1]] + d_ang_save
+#        
+#        print("Resetting arm")
+#        for i,ang_save in enumerate(d_ang_save):
+#            self.theta_slds[i].set_value(ang_save)
+#        sol = integrate.solve_bvp(fun= lambda t,y:self.model_eqn_precise_target_bvp(y,t,total_time,target),bc=self.bc_model,x=t_total_list,y=initial_values_bvp.transpose())
+#        sol = sol.y.transpose()
+#        for item in sol:
+#            for i in range(len(item)-2):
+#                self.theta_slds[i].set_value( item[i+2])      
         
 
 if __name__=='__main__':
