@@ -336,6 +336,7 @@ class RobotArmGUItraj(robotArm.RobotArmGUI):
     def trajectory_bvp(self):
         _ = self.trajectory_ode(is_helper_for_bc=True)
         
+        ##attempt to solve the complete ODE as one problem
 #        print('Complete single BVP being solved')
 #        target_list = self.desired_traj()[self.trajectory_point+1:]
 #        total_time = 10 #for each waypoint
